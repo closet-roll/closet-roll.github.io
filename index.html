@@ -2731,6 +2731,51 @@ function s2floorPass(out, F){
     out[low] += add; tot += add;
   }
 }
+// v72 rarity band correction + non-fashion-brand downward pass
+// (user decision 2026-11-27, after a Don Quijote private-brand
+// fleece - 1,990 yen, N tier - centred a high-scoring outfit with
+// design 100). Two mechanisms, both confined to the two axes that
+// rest on photo-derived percentiles (design: appeal / colorfulness;
+// indiv: assertiveness / colorfulness):
+//
+// 1) Rarity band, PHOTO-JUDGED items only (colorSrc === 2: the
+//    colour identity of the item itself came from the photo, so
+//    the look is photo evidence all the way down). Low tiers get a
+//    ceiling, high tiers a floor, so a noisy photo can neither
+//    crown a cheap item nor flatten an expensive one. Items whose
+//    identity is certain - name-derived colour (1) or eye-verified
+//    (3) - are NOT touched: the correction must not falsify
+//    certain information. (This is also why indiv, exempt from
+//    S2_FLOORS, can take a floor here: the floor applies only
+//    where the low reading is as likely photo flatness as genuine
+//    quietness.)
+// 2) Non-fashion-brand downward pass: items whose seller is not
+//    a fashion brand at all (discount / 100-yen retail private
+//    labels; exact brand-string match, extendable list) get
+//    design / indiv scaled down on top of the band. Brand identity
+//    is certain even when the colour was verified, so this pass
+//    is not gated on colorSrc - the motivating fleece is src 3.
+const S2_V72_BAND = {
+  design: { 0: { max: 68 }, 1: { max: 85 }, 2: { min: 46 }, 3: { min: 58 } },
+  indiv: { 0: { max: 68 }, 1: { max: 85 }, 2: { min: 40 }, 3: { min: 50 } },
+};
+const S2_V72_BRAND_DOWN = new Set(['ドン・キホーテ 情熱価格', 'ダイソー']);
+const S2_V72_BRAND_FACTOR = 0.45;
+function s2v72Pass(out, item){
+  if(s2attr(item)[14] === 2){
+    const tier = s2tier(item);
+    for(const k of ['design', 'indiv']){
+      const B = S2_V72_BAND[k][tier];
+      if(!B) continue;
+      if(B.max != null && out[k] > B.max) out[k] = B.max;
+      if(B.min != null && out[k] < B.min) out[k] = B.min;
+    }
+  }
+  if(S2_V72_BRAND_DOWN.has(item.brand)){
+    out.design = Math.round(out.design * S2_V72_BRAND_FACTOR);
+    out.indiv = Math.round(out.indiv * S2_V72_BRAND_FACTOR);
+  }
+}
 // v39 peaky stretch: the percentile normalization compresses the
 // catalog toward its middle, so random draws concentrated and the
 // high tail starved (v38: 90+ at 0.20%). Each axis is stretched
@@ -2751,6 +2796,7 @@ function s2stats(item){
   s2floorPass(out, F);
   for(const k of S2_STAT_KEYS) out[k] = s2clamp(Math.round(S2_PEAKY_MU[k] + (out[k] - S2_PEAKY_MU[k]) * S2_PEAKY_S));
   s2floorPass(out, F);
+  s2v72Pass(out, item);
   S2_STAT_CACHE.set(item, out);
   return out;
 }
