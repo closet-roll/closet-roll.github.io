@@ -1561,6 +1561,7 @@ affiliateEnabled: true
 };
 
 // 購入先データ本体。add-5 パイロット分（楽天市場の同一商品ページ20件、A8リンク発行済み）を登録。
+// v53: うち3件（アストロン/G-SHOCK/GUSCIOトート）には Amazon の同一商品エントリを先頭に追加（Amazonアソシエイト、tag=closetroll-22）。
 // 未登録の商品には buildVendorLinks() が生成する「検索リンク」がフォールバックとして付く。
 const SHOP_DATA = {
 "p7f7273cdcd87615c": [
@@ -1627,6 +1628,11 @@ const SHOP_DATA = {
   lastChecked:'2026-11-26', source:'A8.net 楽天商品リンク（掲載サイト=002 CLOSET ROLL）で発行'}
 ],
 "p211b235371ad0c56": [
+{ vendor:'Amazon', url:'https://www.amazon.co.jp/dp/B0F9JP4JX5',
+  affiliateUrl:'https://www.amazon.co.jp/dp/B0F9JP4JX5?tag=closetroll-22',
+  asp:'Amazonアソシエイト', price:44000, currency:'JPY',
+  stock:'販売中', condition:'新品', match:'同一商品',
+  lastChecked:'2026-11-26', source:'手動確認'},
 { vendor:'楽天市場', url:'https://item.rakuten.co.jp/theclockhouse/gst-w110ms-1ajf/',
   affiliateUrl:'https://rpx.a8.net/svt/ejp?a8mat=4BGMKC+4GR2VU+2HOM+BWGDT&rakuten=y&a8ejpredirect=https%3A%2F%2Fhb.afl.rakuten.co.jp%2Fhgc%2Fg00t7y74.2bo1155e.g00t7y74.2bo12786%2Fa26111683310_4BGMKC_4GR2VU_2HOM_BWGDT%3Fpc%3Dhttps%253A%252F%252Fitem.rakuten.co.jp%252Ftheclockhouse%252Fgst-w110ms-1ajf%252F%26m%3Dhttp%253A%252F%252Fm.rakuten.co.jp%252Ftheclockhouse%252Fi%252F10011682%252F%26rafcid%3Dwsc_i_is_a9f492a7-8ef9-40e2-ab89-4bc43a1ee283',
   asp:'A8.net', price:44000, currency:'JPY',
@@ -1669,6 +1675,11 @@ const SHOP_DATA = {
   lastChecked:'2026-11-26', source:'A8.net 楽天商品リンク（掲載サイト=002 CLOSET ROLL）で発行'}
 ],
 "pc7c4e8061191fe5c": [
+{ vendor:'Amazon', url:'https://www.amazon.co.jp/dp/B09M71XT37',
+  affiliateUrl:'https://www.amazon.co.jp/dp/B09M71XT37?tag=closetroll-22',
+  asp:'Amazonアソシエイト', price:7900, currency:'JPY',
+  stock:'販売中', condition:'新品', match:'同一商品',
+  lastChecked:'2026-11-26', source:'手動確認'},
 { vendor:'楽天市場', url:'https://item.rakuten.co.jp/jtr-store/17-0998/',
   affiliateUrl:'https://rpx.a8.net/svt/ejp?a8mat=4BGMKC+4GR2VU+2HOM+BWGDT&rakuten=y&a8ejpredirect=https%3A%2F%2Fhb.afl.rakuten.co.jp%2Fhgc%2Fg00tilf4.2bo11bce.g00tilf4.2bo1265f%2Fa26111683310_4BGMKC_4GR2VU_2HOM_BWGDT%3Fpc%3Dhttps%253A%252F%252Fitem.rakuten.co.jp%252Fjtr-store%252F17-0998%252F%26m%3Dhttp%253A%252F%252Fm.rakuten.co.jp%252Fjtr-store%252F17-0998%252Fi%252F10000135%252F%26rafcid%3Dwsc_i_is_a9f492a7-8ef9-40e2-ab89-4bc43a1ee283',
   asp:'A8.net', price:5980, currency:'JPY',
@@ -1690,6 +1701,11 @@ const SHOP_DATA = {
   lastChecked:'2026-11-26', source:'A8.net 楽天商品リンク（掲載サイト=002 CLOSET ROLL）で発行'}
 ],
 "p8ab361357141d942": [
+{ vendor:'Amazon', url:'https://www.amazon.co.jp/dp/B09WM63LJL',
+  affiliateUrl:'https://www.amazon.co.jp/dp/B09WM63LJL?tag=closetroll-22',
+  asp:'Amazonアソシエイト', price:184800, currency:'JPY',
+  stock:'販売中', condition:'新品', match:'同一商品',
+  lastChecked:'2026-11-26', source:'手動確認'},
 { vendor:'楽天市場', url:'https://item.rakuten.co.jp/theclockhouse/sbxy039/',
   affiliateUrl:'https://rpx.a8.net/svt/ejp?a8mat=4BGMKC+4GR2VU+2HOM+BWGDT&rakuten=y&a8ejpredirect=https%3A%2F%2Fhb.afl.rakuten.co.jp%2Fhgc%2Fg00t7y74.2bo1155e.g00t7y74.2bo12786%2Fa26111683310_4BGMKC_4GR2VU_2HOM_BWGDT%3Fpc%3Dhttps%253A%252F%252Fitem.rakuten.co.jp%252Ftheclockhouse%252Fsbxy039%252F%26m%3Dhttp%253A%252F%252Fm.rakuten.co.jp%252Ftheclockhouse%252Fi%252F10008387%252F%26rafcid%3Dwsc_i_is_a9f492a7-8ef9-40e2-ab89-4bc43a1ee283',
   asp:'A8.net', price:184800, currency:'JPY',
