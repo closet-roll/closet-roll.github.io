@@ -6831,8 +6831,9 @@ const ROOM_FLOW={"turn_lines":[{"lines":["……あら、来てたの。","声�
 // label never changes - the variety lives inside the chat opening,
 // which draws a start pattern (greeting / topic / question, plus
 // callback and personal openings at higher affinity tiers) and
-// never repeats the previous pattern. A finished topic closes with
-// a closing line and returns to the menu ("他には何か用？"); there
+// never repeats the previous pattern. A finished topic settles
+// on one silent "……" page (v69), then closes with a closing line
+// and returns to the menu ("他には何か用？"); there
 // are no つづける / やめる buttons any more. Chat data lives in room-data.js
 // (ROOM_DIALOGUES for episodes + questions, ROOM_FLOW for the loop's
 // functional lines - turn / consult accept + return / goodbye /
@@ -7083,6 +7084,7 @@ function roomMarkDone(e){
 // prompt, 'again' the "他には何か用？" register. v67: three buttons
 // only (おしゃべりしよう / コーデを見て / さようなら) - the greeting
 // buttons are gone, so no label juggling happens here any more.
+// (The topic-end "……" pause lives in roomCloseTopic, v69.)
 function roomShowMenu(mode){
  roomStage='menu';
  roomState.tapCount=0;roomSave();
@@ -7139,13 +7141,22 @@ function roomPlayResp(e,i,li){
 }
 // v66: a finished chat topic closes with a closing line, then the
 // menu loop resumes - the old つづける / やめる fork is gone.
+// v69: the closing line no longer lands the instant the topic's
+// last line ends. Real-device feedback: the wrap-up felt abrupt,
+// with no room to breathe - so the topic first settles on one
+// quiet page of just "……" (cup in hand), and only the next tap
+// brings the closing line, then the menu. The pause lives ONLY
+// at this topic-end transition; the consultation return and the
+// goodbye keep their own pacing and never pass through here.
 function roomFinishEvent(e){
  roomMarkDone(e);
  roomCloseTopic();
 }
 function roomCloseTopic(){
  roomVisit.topics++;
- roomPlayFlow('closing','cup-normal',()=>roomShowMenu('again'));
+ roomCur=null;
+ setRoomPose('cup-normal');
+ roomPlayLines(['……'],0,()=>roomPlayFlow('closing','cup-normal',()=>roomShowMenu('again')));
 }
 // --- greeting pool (entry fallback + the chat 'greet' pattern) ---
 function roomGreetingTrig(){
