@@ -1816,6 +1816,22 @@ body.mode-men #packPouchImg,body.mode-men #pouchAnim{filter:hue-rotate(235deg) s
    never displayed anywhere). */
 .roomTraits{margin:8px 2px 0;font-size:11px;line-height:1.7;color:var(--sub,#8a84a0);letter-spacing:.02em}
 
+/* --- v80: the gender tag as its own pill ---
+   The ladies / mens tag never merges into the style label any
+   more: it stands as a separate pill with a quiet tint (ladies
+   pale pink, mens pale blue) on every surface - result cards,
+   reveal cells, battle cards, tag rows, the detail sheet.
+   Placed BEFORE the v74 room block on purpose: the widget SHIM
+   strips everything from the v74 marker on, and these chips
+   render in the widget too. */
+.genderChip{display:inline-block;font-size:13px;line-height:1.45;padding:2px 8px;margin:3px 4px 3px 0;border-radius:var(--radius-chip);border:1px solid;white-space:nowrap}
+.genderChip.gL{background:#FBEAF2;color:#8A4A66;border-color:#F0C6DA}
+.genderChip.gM{background:#E8EFFB;color:#3D5A8A;border-color:#C2D4F2}
+.tagChip.gL{background:#FBEAF2;color:#8A4A66;border-color:#F0C6DA}
+.tagChip.gM{background:#E8EFFB;color:#3D5A8A;border-color:#C2D4F2}
+.cellMeta .genderChip{font-size:11px;line-height:1.55;padding:0 6px;margin:0;flex:none}
+#detailAttrs .genderChip{font-size:12px;margin:0}
+
 /* v74: symbolic affection feedback in Mirei's room. Hearts float
    off the portrait when a choice delta lands (pink for a gain,
    one blue for a loss; quiet mode suppresses them in the
@@ -2847,13 +2863,59 @@ function s2famConf(item){ return s2famInfo(item).conf; }
 // The tags never gate any pool - their only scoring role is the
 // coherence combo in scoreV2 below. (No apostrophes in comments
 // in this file - the test-pack secrecy audit parses them.)
-const S2_TAG_LADIES_RE=/スカート|ワンピース|ブラウス|パンプス|ヒール|ミュール|バレエシューズ|チュニック|キャミソール|ビスチェ|ペチ|キュロット|ウィメンズ|レディース/;
+// Census after the v80 verified batch 1: ladies 273, mens 129
+// (v73-v79 rules alone: 66 / 22; the v80 rule expansion alone:
+// 106 / 22).
+// v80 expansion (user call, 2026-11-27): the v73 dictionary
+// leaked obvious pieces whose names are English or frill-led,
+// so the ladies dictionary grows English garment words (SKIRT /
+// DRESS / BLOUSE / HEELS / PUMPS and friends) plus ガウン, and a
+// second, stricter tier appears: frill / peplum pieces tag
+// ladies ONLY when the catalog gender field agrees (women).
+// A data-derived brand rule was measured and rejected: a brand
+// leaning one way in this catalog says how the piece was
+// sourced, not what the garment plainly is, and it would have
+// tagged plain tees by the hundreds.
+// v80 verified layer (Pome, eye judgment, 2026-11-27): batch 1
+// covers tops + bottoms (556 pieces judged, 342 tagged). A
+// verified tag is the top-priority source - the gender twin
+// of the colorSrc 3 colour verdicts - and it may overrule the
+// name rules and even the catalog gender field (21 ladies
+// tags sit on men-field pieces the judge read as ladies from
+// the photo). Pieces the judge left blank fall back to the
+// name rules below. The master record is
+// design/gender-verification/batch1-verified.csv; the packed
+// strings between the generated markers are regenerated from
+// it by build/gen-gender-verified.py (id bodies packed as
+// bytes, base64 - the trial widget shares this file under a
+// 1 MB ceiling). Batch 2 (shoes / bags / small goods) appends
+// a B2 pair when it lands. The two pieces the user flagged on
+// a real device (Marine Serre PLUMETIS top, VIVAMUS EARTH
+// TOPS) are both L in batch 1, so the hand-written override
+// they carried earlier in v80 is retired - the verified data
+// replaces it, no duplicate implementation.
+const S2_TAG_LADIES_RE=/スカート|ワンピース|ブラウス|パンプス|ヒール|ミュール|バレエシューズ|チュニック|キャミソール|ビスチェ|ペチ|キュロット|ウィメンズ|レディース|ガウン|\bSKIRT\b|\bDRESS\b|\bBLOUSE\b|\bONEPIECE\b|\bCAMISOLE\b|\bHEELS?\b|\bPUMPS\b|\bGOWN\b/i;
 const S2_TAG_DRESS_RE=/ドレス(?!シューズ|シャツ|アップ|コード|感|な)/;
-const S2_TAG_MENS_RE=/ネクタイ|カフス|タキシード|紳士|男性用/;
+const S2_TAG_LADIES_CONFIRMED_RE=/フリル|ペプラム/;
+const S2_TAG_MENS_RE=/ネクタイ|カフス|タキシード|紳士|男性用|\bNECKTIE\b|\bBOWTIE\b|\bTUXEDO\b/i;
+// --- generated: verified gender tags (gen-gender-verified.py) ---
+const S2_TAG_VERIFIED_B1_L='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';
+const S2_TAG_VERIFIED_B1_M='FXeUmAONHNuxVTTZWQK06YLnUjrtfpKQ1EIxFUm53hVp+llsNajVh1ERqDbAZ1hp+PXXjCKpyUmnHBr20yagET8+kNpWdQlT8oR55TVerb3El3hyUd6suA5FLQ5AYO2AFkcRIncshMJDXxqEM6aH6kUxrnKzL+GsmkI6bz4El5FowfxkqTtLiebU+a+qAU9vy/lvKTzURtnGBy4buf2OO9UdqYJTElQtlrLLXb3eV6jWEPWz7ZHHs08Jq9oAWA4wbjmf9erhfJ5QbpL+IIXRwUhNcLYv943KQHZpE3R6WR4KeotM+YUpREme3DTVFTEQr/0juXJave5dpJob7K7wFMt314aAqPUFaj9SJviT03sCzJJlcCZ1EPlJAp56vU3enzEryzS9HMBRsqlX9+JZKR06DfGsagwQv9S67Q9kbppZgEHSE3BycDTcujJp1til4ogVRnGNzwKgrPy9FxVDg3X/4yMO5n03Aom65CFdngG1y/rMEFHYZaE5ixjB+WXxCwv1km1u4EUjzBXssXjzS2zFKGXANZ+hLV48qahVpySQQ8UT6Hra3MHKmxCLrob1DiH8TOGogSEqkT8DBcY+wJ8rEbz97niXUhIqcMYeCi3W6+cuCgp03zkIlLWs4DQEXeEokx3v1g4MEbxBdA65PfPiQEZqnnhXVnu7OvOwsGdK52qkhFzLmmLgXCW1tyFygKUba8cbsO9zkl1/GIxAZqia1jLMqOSN0FlJOythO1W/ODsxOqZw17VWChVgo/y4HBtmRsjGkgbXOIcgzeSG9Cy/4cdQephNb4wzotJDcrDuEGjlr6adgYcs27UunWpwAQeu5Z4P/RPjkXkKJOs1hjiyyZR0zga+/kQneIjxnTotycDcZtUpO1435WRTEbn5m4kyzbM49f3qeKF9HdyIx/RPN+9bwgMRA7p3DWkWQbRNjTTdbkdftGhgyRjHkKG4ka1P3d598OvBE3hJrhcxLZ1LqSgv4PVNL6e5UuHfkPu+mUymzFbXUz+EsHGNhBcx0gRXdBX2bj6fiSldNHu8dYnTpIv3Ch3C1cd6ZNUruAruP0j9sjWeSstFrd5zWjfONsUuB/Pu5x7i9jwdBRRrmjuFS4+r26JLA2IaWQ929fDF8LJXT1lG6KB1MQdwj80UBdU3+rtuUEY=';
+// --- /generated: verified gender tags ---
+const S2_TAG_VERIFIED={};
+(function(){
+  const A='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+  const dec=s=>{const out=[];let acc=0,n=0;for(const ch of s){if(ch==='=')break;const v=A.indexOf(ch);if(v<0)continue;acc=(acc<<6)|v;n+=6;if(n>=8){n-=8;out.push((acc>>n)&255);acc&=(1<<n)-1;}}return out;};
+  const fill=(b64,tag)=>{const b=dec(b64);let hex='';for(const x of b)hex+=x.toString(16).padStart(2,'0');for(let i=0;i+16<=hex.length;i+=16)S2_TAG_VERIFIED['p'+hex.slice(i,i+16)]=tag;};
+  fill(S2_TAG_VERIFIED_B1_L,'L');
+  fill(S2_TAG_VERIFIED_B1_M,'M');
+})();
 function genderTagOf(item){
   if(!item)return null;
+  if(item.id&&S2_TAG_VERIFIED[item.id])return S2_TAG_VERIFIED[item.id];
   const nm=String(item.name||'');
   if(item.gender!=='men'&&(S2_TAG_LADIES_RE.test(nm)||S2_TAG_DRESS_RE.test(nm)))return 'L';
+  if(item.gender==='women'&&S2_TAG_LADIES_CONFIRMED_RE.test(nm))return 'L';
   if(item.gender!=='women'&&(S2_TAG_MENS_RE.test(nm)||/\bMENS?\b/i.test(nm)||(nm.includes('メンズ')&&!nm.includes('ウィメンズ'))))return 'M';
   return null;
 }
@@ -3772,11 +3834,27 @@ function scoreV2(items){
     if(cc>0) combos.push(['色の衝突','design',-cc]);
   }
   if(u<52) combos.push(['系統の衝突','indiv',-Math.min(200,Math.round((52-u)*6))]);
-  // v73: a ladies-tagged piece and a mens-tagged piece in one
-  // outfit read as a world mismatch (coherence). Tags come only
-  // from genderTagOf; one tagged side plus untagged pieces never
-  // fires. Flat -120 on indiv (about -5 overall before the clamp).
-  if(items.some(it=>genderTagOf(it)==='L')&&items.some(it=>genderTagOf(it)==='M')) combos.push(['男女の混在','indiv',-120]);
+  // v73: ladies-tagged and mens-tagged pieces in one outfit
+  // read as a world mismatch (coherence). Tags come only from
+  // genderTagOf; one tagged side plus untagged pieces never
+  // fires. Flat -120 on indiv (about -5 overall before the
+  // clamp). The firing condition is the v80 one below.
+  // v80 recalibration (verified tags, 2026-11-27): with batch 1
+  // eye-verified tags the census jumps to ladies 273 / mens 129
+  // and the v73 one-each condition fires on 22.44% of 100k
+  // uniform draws - one outfit in five, far past the v73
+  // baseline of 1.32%. Candidates measured on the final tag
+  // distribution (same 100k draws): both sides 2+ fires 0.05%
+  // (retires the combo and its diagnosis path), ladies 2+ /
+  // mens 1+ fires 3.00%, ladies 1+ / mens 2+ fires 1.05% -
+  // closest to the baseline, so the doubled side is the mens
+  // side: mens tags are the minority (129 vs 273), and a
+  // single mens piece reads as an accent while two make the
+  // outfit genuinely mixed. Diagnosis (outfitDiagnosis) keys
+  // off this combo, so the advice paths follow automatically.
+  const mixL=items.filter(it=>genderTagOf(it)==='L').length;
+  const mixM=items.filter(it=>genderTagOf(it)==='M').length;
+  if(mixL>=1&&mixM>=2) combos.push(['男女の混在','indiv',-120]);
   if(junkGap>0) combos.push(['品格の落差','class',-(50+junkGap*11)]);
   if(broken){
     combos.push(['バランスの崩壊','design',-350]);
@@ -5321,9 +5399,11 @@ function openDetail(item,slot,count){
  const tier=byId('detailTier');tier.textContent=tiers[rank(item)];tier.className='badge rk'+rank(item); // v44: the pill art carries the tier colour (style.css .badge.rkN); the label stays live text
  // v73: no blanket gender label any more - only an unmistakable
  // ladies / mens piece carries its display tag (genderTagOf).
+ // v80: the tag leaves the slot line and stands as its own
+ // tinted pill at the head of the attribute chip row.
  const gtag=typeof genderTagOf==='function'?genderTagOf(item):null;
  const gender=gtag==='L'?'レディース':gtag==='M'?'メンズ':'';
- byId('detailSlot').textContent=labels[slot]+' · '+names[item.style]+(gender?' · '+gender:'');
+ byId('detailSlot').textContent=labels[slot]+' · '+names[item.style];
  byId('detailBrand').textContent=item.brand;
  byId('detailName').textContent=displayItemName(item.name);
  const dfn=byId('detailFullName');
@@ -5337,6 +5417,7 @@ function openDetail(item,slot,count){
  byId('detailOwn').textContent=owned?'所持 ×'+owned:'未獲得';
  if(owned>0&&!state.seen[itemKey(item)]){state.seen[itemKey(item)]=1;save();renderBook(false);}
  const attrs=byId('detailAttrs');attrs.replaceChildren();
+ if(gtag){const gs=document.createElement('span');gs.className='genderChip '+(gtag==='L'?'gL':'gM');gs.textContent=gender;attrs.append(gs);}
  for(const chip of attrChips(item)){const s=document.createElement('span');s.className='attrChip';s.textContent=chip;attrs.append(s);}
  renderDetailStats(item);
  renderShopSlot(item,byId('detailShop'));
@@ -6748,7 +6829,10 @@ function tagRowEl(item){
  const chips=styleChips(item);
  if(!chips.length)return null;
  const row=document.createElement('span');row.className='tagRow';
- for(const c of chips){const t=document.createElement('span');t.className='tagChip';t.textContent=c;const ic=(typeof CR_STYLE_ICON!=='undefined')?CR_STYLE_ICON[c]:null;if(ic){const im=document.createElement('img');im.className='chipIco';im.src=ic;im.alt='';if(t.prepend)t.prepend(im);else t.append(im);}row.append(t);}
+ // v80: the gender chip is its own pill with its own tint
+ // (gL pale pink / gM pale blue) so it reads apart from the
+ // style chip at a glance - never merged into another label.
+ for(const c of chips){const t=document.createElement('span');t.className='tagChip'+(c==='レディース'?' gL':c==='メンズ'?' gM':'');t.textContent=c;const ic=(typeof CR_STYLE_ICON!=='undefined')?CR_STYLE_ICON[c]:null;if(ic){const im=document.createElement('img');im.className='chipIco';im.src=ic;im.alt='';if(t.prepend)t.prepend(im);else t.append(im);}row.append(t);}
  return row;
 }
 // Rarity label element in the gacha cards' colour language (C, v13):
@@ -7425,12 +7509,16 @@ const ROOM_SERIAL_RC=[{"id":"R2-ST-01-1","series":"R2-ST-01","ep":1,"lines":["�
 // pre-v63 closet behaviour.
 // Affinity is a persisted value (cr_room_v1) - the old personaTier
 // is a per-outfit pure function and is NOT saved. Gains: visit +2
-// (once/day), consultation +2 (once/day), answers (below). v70:
-// question choices from the ChatGPT v6 package carry their own
-// affection deltas - positives pass through (max +3, still under
-// the 3-paying-answers/day budget), negatives are compressed to
-// a -2 floor and can never push affinity below the current
-// tier's floor, so a tier never drops (user decision 2026-11-27).
+// (once/day), answers (below), and - since v80 - the consultation
+// return, which pays by the judged score on every return (see
+// roomConsultGain). v70: question choices from the ChatGPT v6
+// package carry their own affection deltas - positives pass
+// through (max +3), negatives are compressed to a -2 floor and
+// can never push affinity below the current tier's floor, so a
+// tier never drops (user decision 2026-11-27). v80: the daily
+// caps on conversation gains are gone (user call, 2026-11-27) -
+// only the visit gain stays once a day, since it is not a
+// conversation.
 // The value itself is never displayed - the player feels it
 // through unlocked pools, the pose ladder, a one-off line when a
 // tier rises, and a colder register after a hurtful answer.
@@ -7681,10 +7769,12 @@ function roomHearts(n,blue){
  if(!layer||typeof document==='undefined'||!document.createElement)return;
  // Quiet mode suppresses the effect, like celebrate() elsewhere.
  if(typeof gentle==='function'&&gentle())return;
- n=Math.max(1,Math.min(3,n|0));
+ // v80: a batch may now run to 6 (the +4 consultation return
+ // floats four hearts); the stage total still caps at 6.
+ n=Math.max(1,Math.min(6,n|0));
  // Cap the pile-up: rapid successive deltas never stack more
- // than two batches' worth of hearts on the stage.
- while(layer.childNodes&&layer.childNodes.length>3)layer.removeChild(layer.firstChild);
+ // than 6 hearts on the stage in total.
+ while(layer.childNodes&&layer.childNodes.length>6-n)layer.removeChild(layer.firstChild);
  // v76 flight path (user call, 2026-11-27): a heart rises off
  // the portrait, drifts across the stage edge and pours into
  // the gauge above the traits line, which then surges to its
@@ -7781,11 +7871,12 @@ function roomWarmPose(){
  return roomPoseStage('surprise');
 }
 // Pose by event category (deterministic; the delivered art covers
-// the front slots - see ROOM_ART). Response lines smile;
-// callbacks lean on the chinrest; the forehead-angry portrait
-// is the 2nd+ consecutive bust-up tap (a small scold for
-// pestering her). High-affinity beats climb the pose ladder
-// (roomWarmPose) instead of jumping straight to the blush.
+// the front slots - see ROOM_ART). Callbacks lean on the chinrest;
+// the forehead-angry portrait is the 2nd+ consecutive bust-up tap
+// (a small scold for pestering her). High-affinity beats climb
+// the pose ladder (roomWarmPose) instead of jumping straight to
+// the blush. Response poses live in roomRespPose (v80: the
+// composed face is the default there too).
 function roomPoseFor(e,resp){
  if(!e)return 'arms-normal';
  if(resp)return 'arms-smile';
@@ -7794,7 +7885,7 @@ function roomPoseFor(e,resp){
   case 'chat':case 'daily_chat':case 'personal_chat':case 'seasonal':return 'cup-normal';
   case 'high_affinity':return roomWarmPose();
   case 'callback':return 'chinrest-akire';
-  case 'branch_story':return 'arms-smile';
+  case 'branch_story':return 'arms-normal'; // v80: an episode opens on the composed default too (was arms-smile)
   default:return 'arms-normal';
  }
 }
@@ -7953,6 +8044,12 @@ function roomShowMenu(mode){
  }
  roomStage='menu';
  roomState.tapCount=0;roomSave();
+ // v80: the menu idle wears her composed face (user call,
+ // 2026-11-27). Whatever warmth the last beat carried - a
+ // smile on a good answer, the tier-up glow, a pleased
+ // consultation return - the waiting state settles back to
+ // normal. Smiles are for moments, not the default.
+ setRoomPose('arms-normal');
  const ch=byId('roomChoices');if(ch)ch.hidden=true;
  const menu=byId('roomMenu');if(menu)menu.hidden=false;
  // v70: after a hurtful answer, the next prompt leans cold once.
@@ -7998,10 +8095,15 @@ function roomShowOptions(e,resume){
 // face hint - it drives the bust-up pose (smile pleased, angry
 // the forehead scold, normal composed); legacy events keep the
 // long-standing response smile.
+// v80: without an explicit face hint, the smile is earned - a
+// choice that warmed her (a positive delta) gets it, and
+// everything else answers on her composed default face. The
+// smile stops being the room's resting expression.
 const ROOM_FACE_POSE={smile:'arms-smile',normal:'arms-normal',angry:'forehead-angry'};
 function roomRespPose(e,opt){
  if(opt&&opt.face&&ROOM_FACE_POSE[opt.face])return ROOM_FACE_POSE[opt.face];
- return roomPoseFor(e,true);
+ if(opt&&typeof opt.d==='number'&&opt.d>0)return 'arms-smile';
+ return 'arms-normal';
 }
 let roomRespOpt=0;
 function roomChoose(e,i){
@@ -8011,20 +8113,23 @@ function roomChoose(e,i){
  if(roomState.answerDay!==today){roomState.answerDay=today;roomState.answerCount=0;}
  const opt=(e.opts||[])[i]||{};
  // v70: v6-package choices carry their own affection delta
- // (compressed at merge time). A positive delta spends one of
- // the day's 3 paying answers, like the legacy flat +1; a
- // negative delta always lands but stops at the tier floor.
- // A delta of -2 (a raw -5/-6 in the source - every expulsion)
- // also sets the recent_conflict flag the reconciliation
- // episode (R2-G-060) waits on.
+ // (compressed at merge time). A delta of -2 (a raw -5/-6 in
+ // the source - every expulsion) also sets the recent_conflict
+ // flag the reconciliation episode (R2-G-060) waits on.
+ // v80: the daily answer budget is GONE (user call, 2026-11-27)
+ // - every conversation warms the room a little, every time,
+ // with no per-day cap. answerDay / answerCount stay in the
+ // save as a plain counter of paying answers (schema unchanged,
+ // old saves keep loading); nothing gates on them any more.
+ // Negative deltas still always land but stop at the tier floor.
  if(typeof opt.d==='number'){
   if(opt.d>0){
-   if(roomState.answerCount<3){roomState.answerCount++;roomApplyDelta(opt.d);}
+   roomState.answerCount++;roomApplyDelta(opt.d);
   }else if(opt.d<0){
    roomApplyDelta(opt.d);
    if(opt.d<=-2)roomState.flags.recent_conflict=true;
   }
- }else if(roomState.answerCount<3){roomState.answerCount++;roomGain(1);roomHearts(1,false);}
+ }else{roomState.answerCount++;roomGain(1);roomHearts(1,false);}
  if(opt.setf)for(const f of opt.setf)roomState.flags[f]=true;
  if(opt.clearf)for(const f of opt.clearf)delete roomState.flags[f];
  roomSave();
@@ -8059,17 +8164,15 @@ function roomEndVisit(e){
 // own; choice episodes are excluded by the opts check (their
 // deltas already landed in roomChoose, and a good pick
 // floats 2-3 hearts there - the gap between listening (1)
-// and a good interjection (2+) is the point). The reward is
-// the legacy plain answer's +1, spent from the SAME daily
-// budget (3 paying beats a day, shared with roomChoose), so
-// a day of pure listening warms the room exactly as much as
-// a day of plain answers - never more.
+// and a good interjection (2+) is the point).
+// v80: the reward no longer spends from a daily budget -
+// the cap is gone, so every finished monologue pays its +1
+// and floats its heart, every time (see roomChoose).
 function roomListenReward(e){
  if(!e||!roomState)return;
  if(e.opts&&e.opts.length)return;
  const today=roomToday();
  if(roomState.answerDay!==today){roomState.answerDay=today;roomState.answerCount=0;}
- if(roomState.answerCount>=3)return;
  roomState.answerCount++;
  roomGain(1);
  roomHearts(1,false);
@@ -8447,6 +8550,9 @@ function roomReturnNext(){
  const pend=roomPendingReturn||{overall:null,point:'全体のバランス'};
  roomPendingReturn=null;
  const band=roomConsultBand(pend.overall);
+ // v80: the score-linked gain lands as she starts speaking -
+ // roomApplyDelta floats the hearts in step with the points.
+ roomApplyDelta(roomConsultGain(pend.overall));
  const entry=roomFlowPick('consult_return.'+band);
  if(!entry){roomShowMenu('again');return;}
  const n=roomFlowNorm(entry);
@@ -8494,14 +8600,26 @@ function roomEnter(opts){
  roomPowerOff();
  roomRenderGauge();
 }
+// v80: the consultation gain scales with the judged score
+// (user call, 2026-11-27) - a weak outfit still earns a
+// little, a strong one earns more. A null score (a restored
+// result with nothing on record) pays the middle step.
+function roomConsultGain(overall){
+ if(overall==null)return 2;
+ if(overall>=85)return 4;
+ if(overall>=70)return 3;
+ if(overall>=40)return 2;
+ return 1;
+}
 function roomConsultDone(){
+ // v80: the flat +2/day that used to land here is gone. The
+ // gain moved to the return (roomReturnNext), where the
+ // judged score is known and the hearts can float in step.
+ // This hook stays as a no-op so the judge flow in extras.js
+ // keeps its call shape; consultDay remains in the save for
+ // schema compatibility and gates nothing.
  if(!roomEnabled())return;
  if(!roomState)roomState=roomLoad();
- const today=roomToday();
- if(roomState.consultDay===today)return;
- roomState.consultDay=today;
- roomGain(2);
- roomSave();
 }
 function initRoom(){
  if(!roomEnabled())return;
@@ -10165,7 +10283,11 @@ function battleCardEl(item, slot){
   const strong = document.createElement('strong'); strong.textContent = displayItemName(item.name);
   const tag = document.createElement('span'); tag.className = 'styleTag'; tag.textContent = names[item.style];
   const price = document.createElement('b'); price.textContent = yen(item.price);
-  copy.append(small, strong, tag, price);
+  // v80: the gender tag stands as its own tinted pill beside
+  // the style chip, as on the gacha result cards.
+  const glabel = (typeof genderTagLabel === 'function') ? genderTagLabel(item) : '';
+  if (glabel) { const gc = document.createElement('span'); gc.className = 'genderChip ' + (((typeof genderTagOf === 'function') && genderTagOf(item) === 'L') ? 'gL' : 'gM'); gc.textContent = glabel; copy.append(small, strong, tag, gc, price); }
+  else copy.append(small, strong, tag, price);
   el.append(ph, badge, copy);
   if (rank(item) >= 2) el.append(lightBurstEl(rank(item)));
   el.title = 'タップで詳細';
@@ -10736,7 +10858,9 @@ function card(index) {
   if(typeof isNewItem==='function'&&isNewItem(item)){const nb=document.createElement('span');nb.className='newBadge';nb.textContent='NEW';el.append(nb);}
   el.querySelector('small').textContent = labels[index] + ' · ' + item.brand;
   el.querySelector('strong').textContent = typeof displayItemName==='function'?displayItemName(item.name):item.name;
-  el.querySelector('.styleTag').textContent = names[item.style] + ((typeof genderTagLabel==='function'&&genderTagLabel(item))?' ・ '+genderTagLabel(item):''); // v76: gender tag at style-chip priority
+  el.querySelector('.styleTag').textContent = names[item.style]; // v80: style only - the gender tag is its own pill now (below)
+  const glabel=(typeof genderTagLabel==='function')?genderTagLabel(item):'';
+  if(glabel){const gc=document.createElement('span');gc.className='genderChip '+(((typeof genderTagOf==='function')&&genderTagOf(item)==='L')?'gL':'gM');gc.textContent=glabel;const bEl=el.querySelector('b');if(bEl&&bEl.parentNode&&bEl.parentNode.insertBefore)bEl.parentNode.insertBefore(gc,bEl);else el.querySelector('.copy').append(gc);}
   el.querySelector('b').textContent = yen(item.price);
   const href=productLink(item);if(href){const link=document.createElement('a'); link.href=href; link.rel='noopener'+(item.affiliateEnabled?' sponsored':'');link.target='_blank';link.textContent=item.affiliateEnabled?'PR・購入先':'商品情報';link.onclick=()=>eventLog('product_click',{id:item.id});el.querySelector('.copy').append(link);}
   el.title='タップで詳細';
@@ -10906,9 +11030,12 @@ function revealCellEl(item,i){
   const sm=document.createElement('small');sm.textContent=labels[i]+' · '+item.brand;
   const st=document.createElement('strong');st.textContent=typeof displayItemName==='function'?displayItemName(item.name):item.name;
   const meta=document.createElement('span');meta.className='cellMeta';
-  const tag=document.createElement('span');tag.className='styleTag';tag.textContent=names[item.style]+((typeof genderTagLabel==='function'&&genderTagLabel(item))?' ・ '+genderTagLabel(item):''); // v76: gender tag at style-chip priority
+  const tag=document.createElement('span');tag.className='styleTag';tag.textContent=names[item.style]; // v80: style only
   const pr=document.createElement('b');pr.textContent=yen(item.price);
-  meta.append(tag,pr);cap.append(sm,st,meta);front.append(cap);
+  const glabel=(typeof genderTagLabel==='function')?genderTagLabel(item):'';
+  if(glabel){const gc=document.createElement('span');gc.className='genderChip '+(((typeof genderTagOf==='function')&&genderTagOf(item)==='L')?'gL':'gM');gc.textContent=glabel;meta.append(tag,gc,pr);} // v80: the gender tag stands as its own pill between style and price
+  else meta.append(tag,pr);
+  cap.append(sm,st,meta);front.append(cap);
   cell.append(front);
   const back=document.createElement('span');back.className='cellBack';
   const bi=document.createElement('img');bi.className='coverBackImg';bi.src=CR_CARD_BACK;bi.alt='';bi.setAttribute('aria-hidden','true');
