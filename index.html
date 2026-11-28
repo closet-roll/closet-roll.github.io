@@ -3792,9 +3792,14 @@ function s2v72Pass(out, item){
     }
   }
   if(S2_V72_BRAND_DOWN.has(item.brand)){
-    out.design = Math.round(out.design * S2_V72_BRAND_FACTOR);
-    out.indiv = Math.round(out.indiv * S2_V72_BRAND_FACTOR);
-    out.class = Math.min(Math.round(out.class * S2_V72_BRAND_FACTOR), S2_V76_BRAND_CLASS_MAX);
+    // v91: the pass now covers all five axes. The v72/v76 version
+    // left quality and versatility untouched, so a 110-yen plastic
+    // bag read versatility 100 = S on its detail sheet. The user
+    // ruling (2026-11-28): for these brands every axis may sit at
+    // the bottom, so each axis is scaled by the same factor and
+    // capped at the top of the D band (39) - the v76 class rule
+    // generalized to the whole sheet.
+    for(const k of S2_STAT_KEYS) out[k] = Math.min(Math.round(out[k] * S2_V72_BRAND_FACTOR), S2_V76_BRAND_CLASS_MAX);
   }
 }
 // v39 peaky stretch: the percentile normalization compresses the
