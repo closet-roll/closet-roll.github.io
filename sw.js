@@ -17,7 +17,7 @@
 // こと（CHANGES-v83.md 参照）。更新し忘れると写真キャッシュが
 // 前版のまま残る。
 // ============================================================
-const SW_VERSION = 'v91';
+const SW_VERSION = 'v92';
 const HTML_CACHE = 'cr-html-' + SW_VERSION;
 const PHOTO_CACHE = 'cr-photos-' + SW_VERSION;
 const KNOWN_CACHES = [HTML_CACHE, PHOTO_CACHE];
