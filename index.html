@@ -3694,6 +3694,12 @@ function s2rawCached(item){
 // anchor curve. The same curve serves every axis; ranks are
 // therefore comparable across axes by construction.
 const S2_STAT_KEYS = ['class', 'quality', 'design', 'versatility', 'indiv'];
+// Track1 scoring calibration (2026-11-28, spec scoring-track1-spec.md):
+// one switch for the four changes V1-V4 below. Set to false to restore
+// the pre-track1 behavior exactly (panel comparison uses the OFF form).
+// V1 chain cap 110 -> 40. V2 per-axis soft cap on positive combo sums.
+// V3 overall ceiling at base + 25. V4 cospa combo suppressed past 120000 yen.
+const S2_TRACK1 = true;
 const S2_NORM_KEYS = ['class', 'quality', 'design', 'versatility', 'indiv', 'trend'];
 const S2_NORM_ANCHORS = [[0, 3], [5, 17], [25, 41], [50, 58], [75, 80], [90, 95], [95, 98], [100, 100]];
 let S2_NORM = null;
@@ -4270,7 +4276,9 @@ function scoreV2(items){
     // price territory and the stat thresholds do the gating);
     // the junk blunt still applies, and the rarity scaling does
     // not - a price-themed combo is not paid for rarity.
-    if(total>30000&&total<=250000){
+    // Track1 V4: past 120000 yen the cospa praise does not fire.
+    // Cheap-and-clever praise is not paid to an expensive outfit.
+    if(total>30000&&total<=(S2_TRACK1?120000:250000)){
       const sumBaseNow=S2_STAT_KEYS.reduce((n,k)=>n+statSums[k],0);
       const band=total<=60000?[1450,80,1540,130]:total<=120000?[1540,65,1640,110]:[1640,50,1740,85];
       const pay=sumBaseNow>=band[2]?band[3]:sumBaseNow>=band[0]?band[1]:0;
@@ -4294,8 +4302,8 @@ function scoreV2(items){
     // a boost to every axis, growing with the group count - a
     // set where many kinds of coherence coincide is more than
     // the sum of its parts (3 groups: +20, then +20 per extra
-    // group, capped at +110).
-    if(posGroups.size>=3) addCombo('chain','連鎖','all',P(Math.min(110,20*(posGroups.size-2))));
+    // group, capped at +110 pre-track1, +40 with track1 V1).
+    if(posGroups.size>=3) addCombo('chain','連鎖','all',P(Math.min(S2_TRACK1?40:110,20*(posGroups.size-2))));
   }
   // Negative combos (never gated; they replace the pre-v38
   // direct score cuts).
@@ -4336,21 +4344,31 @@ function scoreV2(items){
   // can push a sum past 500 (displayed S+) and a heavy clash can
   // push one below zero; the effect counts in full either way, so
   // the displayed stats always add up to the total exactly. The
-  // rescued-outfit cap of 94 still applies to the total.
-  const statDelta={}, statFinal={};
-  for(const k of S2_STAT_KEYS) statDelta[k]=0;
+  // rescued-outfit cap of 94 still applies to the total, and with
+  // track1 the base + 25 ceiling (V3) applies as well.
+  // Track1 V2: per-axis soft cap on positive combo additions.
+  // pos tracks the positive combo sum per axis while statDelta is
+  // built; past 200, half of the excess is trimmed back before
+  // the final stats are summed. Recorded combos are [label, stat,
+  // pts]; stat all expands to every axis. Negative additions and
+  // base stats are untouched.
+  const statDelta={}, statFinal={}, pos={};
+  for(const k of S2_STAT_KEYS) statDelta[k]=pos[k]=0;
   for(const c of combos){
-    if(c[1]==='all'){ for(const k of S2_STAT_KEYS) statDelta[k]+=c[2]; }
-    else if(statDelta[c[1]]!=null) statDelta[c[1]]+=c[2];
+    const t=c[1]==='all'?S2_STAT_KEYS:[c[1]];
+    for(const k of t) if(statDelta[k]!=null){ statDelta[k]+=c[2]; if(c[2]>0) pos[k]+=c[2]; }
   }
   let sumFinal=0, sumBase=0;
   for(const k of S2_STAT_KEYS){
+    if(S2_TRACK1) statDelta[k]-=Math.max(0,pos[k]-200)/2;
     statFinal[k]=statSums[k]+statDelta[k];
     sumFinal+=statFinal[k]; sumBase+=statSums[k];
   }
-  let overall=s2clamp(Math.round(sumFinal/25));
-  if(relief) overall=Math.min(overall,94);
   const basePts=Math.round(sumBase/25);
+  let overall=s2clamp(Math.round(sumFinal/25));
+  // Track1 V3: the total never exceeds the base score + 25.
+  // Combined with the 94 relief cap by taking the smaller one.
+  overall=Math.min(overall,relief?94:100,S2_TRACK1?basePts+25:100);
   // Item-card marks for the result grid: the style / brand marks
   // follow their combos.
   const marks=[];
@@ -12516,4 +12534,4 @@ if ('serviceWorker' in navigator && location.protocol === 'https:') {
     navigator.serviceWorker.register('sw.js').catch(function () {});
   });
 }
-</script><div id="crVersion" aria-hidden="true">v95</div></body></html>
+</script><div id="crVersion" aria-hidden="true">v96</div></body></html>
