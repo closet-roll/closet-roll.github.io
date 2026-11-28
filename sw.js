@@ -1,5 +1,5 @@
 // ============================================================
-// CLOSET ROLL Service Worker (v90)
+// CLOSET ROLL Service Worker (v91)
 // ------------------------------------------------------------
 // 戦略（安全側）:
 // - HTML（ナビゲーション）は network-first。ゲーム本体は単一HTMLで
@@ -17,7 +17,7 @@
 // こと（CHANGES-v83.md 参照）。更新し忘れると写真キャッシュが
 // 前版のまま残る。
 // ============================================================
-const SW_VERSION = 'v90';
+const SW_VERSION = 'v91';
 const HTML_CACHE = 'cr-html-' + SW_VERSION;
 const PHOTO_CACHE = 'cr-photos-' + SW_VERSION;
 const KNOWN_CACHES = [HTML_CACHE, PHOTO_CACHE];
